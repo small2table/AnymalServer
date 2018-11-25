@@ -63,6 +63,7 @@ std::string HTTP::HTTPPacket::to_string(){
 	for(auto iter = headers.begin(); iter != headers.end(); iter++){
 		packet += (iter->first + ":" + iter->second + "\n");
 	}
+	packet = packet.substr(0, packet.length()-1);
 	packet += "\r\n\r\n";
 	packet += body;
 
@@ -74,6 +75,8 @@ std::string HTTP::HTTPPacket::to_string(){
 void HTTP::HTTP_send(int clientfd, HTTP::HTTPPacket *packet){
 	std::string form = packet->to_string();
 	write(clientfd, form.c_str(), form.length());
+
+	cout << form.c_str() << endl;
 }
 
 HTTP::HTTPPacket* HTTP::HTTP_receive(int clientfd){
@@ -106,6 +109,7 @@ HTTP::HTTPPacket* HTTP::HTTP_receive(int clientfd){
 		std::string found = packet.substr(last_pos, pos - last_pos);
 
 		int seperator = found.find_first_of(":");
+		if(seperator == std::string::npos) break;
 		form->setOption(found.substr(0, seperator), found.substr(seperator+1));
 
 		last_pos = packet.find_first_not_of("\n", pos);
